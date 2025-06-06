@@ -16,7 +16,7 @@ func SetupAuthRoutes(router *gin.Engine, cfg *config.Config) {
 		panic(err)
 	}
 
-	auth := router.Group("/app/auth")
+	auth := router.Group("/api/auth")
 	{
 		auth.POST("/register", authController.Register)
 		auth.POST("/login", authMiddleware.LoginHandler)

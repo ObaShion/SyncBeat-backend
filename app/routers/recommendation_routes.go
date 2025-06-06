@@ -21,7 +21,7 @@ func SetupRecommendationRoutes(router *gin.Engine, cfg *config.Config) {
 		panic(err)
 	}
 
-	recommendations := router.Group("/app/recommendations")
+	recommendations := router.Group("/api/recommendations")
 	{
 		// 認証が必要なルート
 		recommendations.Use(authMiddleware.MiddlewareFunc())
