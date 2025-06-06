@@ -7,6 +7,7 @@ import (
 	"SyncBeat/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AuthController struct {
@@ -36,6 +37,7 @@ func (ac *AuthController) Register(c *gin.Context) {
 	user := models.User{
 		Email:    input.Email,
 		Password: input.Password,
+		UID:      uuid.NewString(),
 	}
 
 	if err := user.HashPassword(); err != nil {

@@ -1,9 +1,7 @@
 services:
   api:
-    container_name: SyncBeatAPI
-    build:
-      context: .
-      dockerfile: app/Dockerfile
+    container_name: SyncBeatAPI-release
+    image: syncbeat-api:latest
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     environment:
@@ -24,7 +22,7 @@ services:
 
   db:
     image: postgres:15
-    container_name: SyncBeatDB
+    container_name: SyncBeatDB-release
     restart: always
     environment:
       POSTGRES_DB: ${DB_NAME}

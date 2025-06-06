@@ -14,15 +14,17 @@ func NewRecommendationRepository() *RecommendationRepository {
 	return &RecommendationRepository{}
 }
 
-func (rr *RecommendationRepository) CreateUserState(userID uint, heartRates []int64, weather, movement string, latitude, longitude float64, calendar []string) (*models.UserState, error) {
+func (rr *RecommendationRepository) CreateUserState(userID uint, heartRates []int64, weather, movement string, latitude, longitude float64, calendar []string, user_qery string) (*models.UserState, error) {
 	userState := models.UserState{
 		UserID:     userID,
+		UID:        uuid.NewString(),
 		HeartRates: pq.Int64Array(heartRates),
 		Weather:    weather,
 		Movement:   movement,
 		Latitude:   latitude,
 		Longitude:  longitude,
 		Calendar:   pq.StringArray(calendar),
+		Prompt:     user_qery,
 	}
 
 	if err := database.DB.Create(&userState).Error; err != nil {
@@ -54,4 +56,12 @@ func (rr *RecommendationRepository) UpdateRecommendationScore(uid string, userID
 
 	recommendation.Score = score
 	return database.DB.Save(&recommendation).Error
+}
+
+func (rr *RecommendationRepository) GetRecommendationByUID(uid string) (*models.MusicRecommendation, error) {
+	var recommendation models.MusicRecommendation
+	if err := database.DB.Where("uid = ?", uid).First(&recommendation).Error; err != nil {
+		return nil, err
+	}
+	return &recommendation, nil
 }

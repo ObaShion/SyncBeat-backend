@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -30,6 +31,7 @@ type UserStateInput struct {
 	Longitude  float64  `json:"longitude" binding:"required"`
 	Calendar   []string `json:"calendar"`
 	MusicLimit int      `json:"music_limit"`
+	UserQuery  string   `json:"user_query,omitempty"`
 }
 
 type RecommendationItem struct {
@@ -52,12 +54,12 @@ func (rs *RecommendationService) GetRecommendation(userID uint, input UserStateI
 		heartRates[i] = int64(v)
 	}
 
-	userState, err := rs.repo.CreateUserState(userID, heartRates, input.Weather, input.Movement, input.Latitude, input.Longitude, input.Calendar)
+	userState, err := rs.repo.CreateUserState(userID, heartRates, input.Weather, input.Movement, input.Latitude, input.Longitude, input.Calendar, input.UserQuery)
 	if err != nil {
 		return nil, err
 	}
 
-	recommendationItems := rs.generateRecommendation(*userState, musicLimit)
+	recommendationItems := rs.generateRecommendation(*userState, musicLimit, input)
 
 	// 推薦を保存
 	for i := range recommendationItems {
@@ -74,11 +76,21 @@ func (rs *RecommendationService) GetRecommendation(userID uint, input UserStateI
 }
 
 func (rs *RecommendationService) UpdateRecommendationScore(uid string, userID uint, score int) error {
+	// 推薦が指定されたユーザーのものであることを確認
+	recommendation, err := rs.repo.GetRecommendationByUID(uid)
+	if err != nil {
+		return err
+	}
+
+	if recommendation.UserID != userID {
+		return fmt.Errorf("unauthorized: recommendation does not belong to user")
+	}
+
 	return rs.repo.UpdateRecommendationScore(uid, userID, score)
 }
 
 // generateRecommendation
-func (rs *RecommendationService) generateRecommendation(state models.UserState, musicLimit int) []RecommendationItem {
+func (rs *RecommendationService) generateRecommendation(state models.UserState, musicLimit int, input UserStateInput) []RecommendationItem {
 
 	// DifyAPIのエンドポイント
 	url := os.Getenv("DIFY_BASE_URL")
@@ -102,14 +114,20 @@ func (rs *RecommendationService) generateRecommendation(state models.UserState, 
 	}
 
 	// リクエストボディの作成
+	inputs := map[string]interface{}{
+		"heart_rates": heartRatesStr,
+		"weather":     state.Weather,
+		"movement":    state.Movement,
+		"calendar":    calendarStr,
+		"music_limit": musicLimit,
+	}
+
+	if input.UserQuery != "" {
+		inputs["user_query"] = input.UserQuery
+	}
+
 	requestBody := map[string]interface{}{
-		"inputs": map[string]interface{}{
-			"heart_rates": heartRatesStr,
-			"weather":     state.Weather,
-			"movement":    state.Movement,
-			"calendar":    calendarStr,
-			"music_limit": musicLimit,
-		},
+		"inputs":        inputs,
 		"response_mode": "blocking",
 		"user":          "user_1",
 	}
@@ -117,6 +135,7 @@ func (rs *RecommendationService) generateRecommendation(state models.UserState, 
 	// JSONに変換
 	jsonData, err := json.Marshal(requestBody)
 	if err != nil {
+		log.Printf("JSON marshal error: %v", err)
 		return []RecommendationItem{{MusicID: "error", UID: "error"}}
 	}
 
