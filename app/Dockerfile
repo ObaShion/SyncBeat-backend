@@ -10,7 +10,7 @@ RUN go mod download
 COPY app ./app
 
 WORKDIR /build/app
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /build/SyncBeat ./main.go
+RUN go build -o /build/SyncBeat ./main.go
 
 
 # Final stage
