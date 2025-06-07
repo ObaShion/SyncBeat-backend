@@ -2,7 +2,8 @@ package main
 
 import (
 	database "SyncBeat/migrations"
-	routes "SyncBeat/routers"
+	"SyncBeat/routers/auth"
+	routes "SyncBeat/routers/recommandation"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -32,7 +33,7 @@ func main() {
 	router := gin.Default()
 
 	// ルート設定
-	routes.SetupAuthRoutes(router, cfg)
+	auth.SetupAuthRoutes(router, cfg)
 	routes.SetupRecommendationRoutes(router, cfg)
 
 	if err := router.Run(":" + cfg.Server.Port); err != nil {

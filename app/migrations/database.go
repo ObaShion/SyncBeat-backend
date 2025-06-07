@@ -1,7 +1,9 @@
 package database
 
 import (
-	"SyncBeat/models"
+	"SyncBeat/models/auth"
+	"SyncBeat/models/recommendation"
+	"SyncBeat/models/user"
 	"fmt"
 	"log"
 	"os"
@@ -44,10 +46,10 @@ func InitDB() {
 
 	// マイグレーション
 	err = DB.AutoMigrate(
-		&models.User{},
-		&models.UserState{},
-		&models.MusicRecommendation{},
-		&models.RefreshToken{},
+		&user.User{},
+		&user.UserState{},
+		&recommendation.MusicRecommendation{},
+		&auth.RefreshToken{},
 	)
 	if err != nil {
 		log.Fatalf("マイグレーションに失敗しました: %v", err)

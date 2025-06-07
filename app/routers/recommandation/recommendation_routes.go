@@ -1,22 +1,22 @@
-package routes
+package recommandation
 
 import (
 	"SyncBeat/config"
-	"SyncBeat/controllers"
-	"SyncBeat/middleware"
-	"SyncBeat/repositories"
-	"SyncBeat/service"
+	recommendation2 "SyncBeat/controllers/recommendation"
+	"SyncBeat/middleware/jwt"
+	"SyncBeat/repositories/recommendation"
+	"SyncBeat/service/recommandation"
 
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRecommendationRoutes(router *gin.Engine, cfg *config.Config) {
-	recommendationRepo := repositories.NewRecommendationRepository()
-	recommendationService := service.NewRecommendationService(recommendationRepo)
-	recommendationController := controllers.NewRecommendationController(recommendationService)
+	recommendationRepo := recommendation.NewRecommendationRepository()
+	recommendationService := recommandation.NewRecommendationService(recommendationRepo)
+	recommendationController := recommendation2.NewRecommendationController(recommendationService)
 
 	// ミドルウェア
-	authMiddleware, err := middleware.AuthMiddleware(cfg)
+	authMiddleware, err := jwt.AuthMiddleware(cfg)
 	if err != nil {
 		panic(err)
 	}

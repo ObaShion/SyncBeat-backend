@@ -1,18 +1,18 @@
-package controllers
+package recommendation
 
 import (
 	"SyncBeat/errors"
-	"SyncBeat/service"
+	"SyncBeat/service/recommandation"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 
 type RecommendationController struct {
-	service *service.RecommendationService
+	service *recommandation.RecommendationService
 }
 
-func NewRecommendationController(service *service.RecommendationService) *RecommendationController {
+func NewRecommendationController(service *recommandation.RecommendationService) *RecommendationController {
 	return &RecommendationController{
 		service: service,
 	}
@@ -28,7 +28,7 @@ func (rc *RecommendationController) GetRecommendation(c *gin.Context) {
 		return
 	}
 
-	var input service.UserStateInput
+	var input recommandation.UserStateInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(errors.NewBadRequest("無効なリクエストです", err).Code, gin.H{
 			"error": err.Error(),

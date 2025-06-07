@@ -1,8 +1,9 @@
-package repositories
+package recommendation
 
 import (
 	database "SyncBeat/migrations"
-	"SyncBeat/models"
+	"SyncBeat/models/recommendation"
+	"SyncBeat/models/user"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -14,8 +15,8 @@ func NewRecommendationRepository() *RecommendationRepository {
 	return &RecommendationRepository{}
 }
 
-func (rr *RecommendationRepository) CreateUserState(userID uint, heartRates []int64, weather, movement string, latitude, longitude float64, calendar []string, user_qery string) (*models.UserState, error) {
-	userState := models.UserState{
+func (rr *RecommendationRepository) CreateUserState(userID uint, heartRates []int64, weather, movement string, latitude, longitude float64, calendar []string, user_qery string) (*user.UserState, error) {
+	userState := user.UserState{
 		UserID:     userID,
 		UID:        uuid.NewString(),
 		HeartRates: pq.Int64Array(heartRates),
@@ -33,9 +34,9 @@ func (rr *RecommendationRepository) CreateUserState(userID uint, heartRates []in
 	return &userState, nil
 }
 
-func (rr *RecommendationRepository) CreateMusicRecommendation(userID uint, userStateID uint, musicID string) (*models.MusicRecommendation, error) {
+func (rr *RecommendationRepository) CreateMusicRecommendation(userID uint, userStateID uint, musicID string) (*recommendation.MusicRecommendation, error) {
 	uid := uuid.NewString()
-	musicRecommendation := models.MusicRecommendation{
+	musicRecommendation := recommendation.MusicRecommendation{
 		UserID:      userID,
 		UserStateID: userStateID,
 		MusicID:     musicID,
@@ -49,7 +50,7 @@ func (rr *RecommendationRepository) CreateMusicRecommendation(userID uint, userS
 }
 
 func (rr *RecommendationRepository) UpdateRecommendationScore(uid string, userID uint, score int) error {
-	var recommendation models.MusicRecommendation
+	var recommendation recommendation.MusicRecommendation
 	if err := database.DB.Where("uid = ? AND user_id = ?", uid, userID).First(&recommendation).Error; err != nil {
 		return err
 	}
@@ -58,8 +59,8 @@ func (rr *RecommendationRepository) UpdateRecommendationScore(uid string, userID
 	return database.DB.Save(&recommendation).Error
 }
 
-func (rr *RecommendationRepository) GetRecommendationByUID(uid string) (*models.MusicRecommendation, error) {
-	var recommendation models.MusicRecommendation
+func (rr *RecommendationRepository) GetRecommendationByUID(uid string) (*recommendation.MusicRecommendation, error) {
+	var recommendation recommendation.MusicRecommendation
 	if err := database.DB.Where("uid = ?", uid).First(&recommendation).Error; err != nil {
 		return nil, err
 	}

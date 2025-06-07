@@ -1,10 +1,10 @@
-package controllers
+package auth
 
 import (
 	"SyncBeat/config"
 	"SyncBeat/errors"
 	database "SyncBeat/migrations"
-	"SyncBeat/models"
+	"SyncBeat/models/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -34,7 +34,7 @@ func (ac *AuthController) Register(c *gin.Context) {
 		return
 	}
 
-	user := models.User{
+	user := user.User{
 		Email:    input.Email,
 		Password: input.Password,
 		UID:      uuid.NewString(),

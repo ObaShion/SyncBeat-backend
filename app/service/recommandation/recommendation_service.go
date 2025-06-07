@@ -1,8 +1,8 @@
-package service
+package recommandation
 
 import (
-	"SyncBeat/models"
-	"SyncBeat/repositories"
+	"SyncBeat/models/user"
+	"SyncBeat/repositories/recommendation"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -14,10 +14,10 @@ import (
 )
 
 type RecommendationService struct {
-	repo *repositories.RecommendationRepository
+	repo *recommendation.RecommendationRepository
 }
 
-func NewRecommendationService(repo *repositories.RecommendationRepository) *RecommendationService {
+func NewRecommendationService(repo *recommendation.RecommendationRepository) *RecommendationService {
 	return &RecommendationService{
 		repo: repo,
 	}
@@ -61,7 +61,6 @@ func (rs *RecommendationService) GetRecommendation(userID uint, input UserStateI
 
 	recommendationItems := rs.generateRecommendation(*userState, musicLimit, input)
 
-	// 推薦を保存
 	for i := range recommendationItems {
 		recommendation, err := rs.repo.CreateMusicRecommendation(userID, userState.ID, recommendationItems[i].MusicID)
 		if err != nil {
@@ -76,7 +75,6 @@ func (rs *RecommendationService) GetRecommendation(userID uint, input UserStateI
 }
 
 func (rs *RecommendationService) UpdateRecommendationScore(uid string, userID uint, score int) error {
-	// 推薦が指定されたユーザーのものであることを確認
 	recommendation, err := rs.repo.GetRecommendationByUID(uid)
 	if err != nil {
 		return err
@@ -90,7 +88,7 @@ func (rs *RecommendationService) UpdateRecommendationScore(uid string, userID ui
 }
 
 // generateRecommendation
-func (rs *RecommendationService) generateRecommendation(state models.UserState, musicLimit int, input UserStateInput) []RecommendationItem {
+func (rs *RecommendationService) generateRecommendation(state user.UserState, musicLimit int, input UserStateInput) []RecommendationItem {
 
 	// DifyAPIのエンドポイント
 	url := os.Getenv("DIFY_BASE_URL")

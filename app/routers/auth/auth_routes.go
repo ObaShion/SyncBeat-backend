@@ -1,17 +1,17 @@
-package routes
+package auth
 
 import (
 	"SyncBeat/config"
-	"SyncBeat/controllers"
-	"SyncBeat/middleware"
+	"SyncBeat/controllers/auth"
+	"SyncBeat/middleware/jwt"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupAuthRoutes(router *gin.Engine, cfg *config.Config) {
-	authController := controllers.NewAuthController(cfg)
+	authController := auth.NewAuthController(cfg)
 
 	// ミドルウェア
-	authMiddleware, err := middleware.AuthMiddleware(cfg)
+	authMiddleware, err := jwt.AuthMiddleware(cfg)
 	if err != nil {
 		panic(err)
 	}

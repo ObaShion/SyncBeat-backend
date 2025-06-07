@@ -1,10 +1,10 @@
-package middleware
+package jwt
 
 import (
 	"SyncBeat/config"
 	"SyncBeat/errors"
 	database "SyncBeat/migrations"
-	models "SyncBeat/models"
+	models "SyncBeat/models/user"
 	"net/http"
 	"time"
 
